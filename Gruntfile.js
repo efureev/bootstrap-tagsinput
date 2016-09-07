@@ -2,6 +2,7 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-zip');
     grunt.loadNpmTasks('grunt-jquerymanifest');
@@ -25,15 +26,49 @@ module.exports = function (grunt) {
                 }
             }
         },
+        less          : {
+            production: {
+                options: {
+                    compress         : true,
+                    cleancss         : true,
+                    sourceMap        : true,
+                    sourceMapFilename: 'dist/<%= pkg.name %>.min.css.map',
+                    sourceMapURL     : '<%= pkg.name %>.min.css.map',
+                    plugins          : [
+                        new (require('less-plugin-autoprefix'))({browsers: ["last 2 versions"]})
+                    ]
+                },
+                files  : {
+                    'dist/<%= pkg.name %>.min.css': [
+                        'src/<%= pkg.name %>.less',
+                        'src/<%= pkg.name %>-typeahead.less'
+                    ]
+                }
+            },
+            dev       : {
+                options: {
+                    banner : '<%= pkg.banner %>',
+                    plugins: [
+                        new (require('less-plugin-autoprefix'))({browsers: ["last 2 versions"]})
+                    ]
+                },
+                files  : {
+                    'dist/<%= pkg.name %>.css': [
+                        'src/<%= pkg.name %>.less',
+                        'src/<%= pkg.name %>-typeahead.less'
+                    ]
+                }
+            }
+        },
         copy          : {
             versioned: {
                 files: [
-                    {expand: true, flatten: true, src: ['src/*.*'], dest: 'versioned/', filter: 'isFile'}
+                    {expand: true, flatten: true, src: ['src/*.js','src/*.css'], dest: 'versioned/', filter: 'isFile'}
                 ]
             },
             build    : {
                 files: [
-                    {expand: true, flatten: true, src: ['versioned/*.*'], dest: 'dist/', filter: 'isFile'}
+                    {expand: true, flatten: true, src: ['versioned/*'], dest: 'dist/', filter: 'isFile'}
                 ]
             }
         },
@@ -65,7 +100,6 @@ module.exports = function (grunt) {
                 src : [
                     'dist/bootstrap-tagsinput*.js',
                     'dist/bootstrap-tagsinput*.css',
-                    'dist/bootstrap-tagsinput*.less',
                     'dist/bootstrap-tagsinput*.map'
                 ],
                 dest: 'dist/<%= pkg.name %>.zip'
@@ -94,7 +128,7 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('install', ['bower']);
-    grunt.registerTask('compile', ['copy:versioned', 'usebanner', 'uglify', 'copy:build']);
+    grunt.registerTask('compile', ['copy:versioned', 'usebanner', 'uglify', 'less:production', 'less:dev', 'copy:build']);
     grunt.registerTask('test', ['compile', 'karma']);
     grunt.registerTask('build', ['test', 'jquerymanifest', 'zip']);
 };

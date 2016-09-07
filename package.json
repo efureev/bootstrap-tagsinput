@@ -36,6 +36,8 @@
     "grunt-cli": "~1.2",
     "grunt-contrib-copy": "~1.0",
     "grunt-contrib-uglify": "~2.0",
+    "grunt-contrib-less": "~1",
+    "less-plugin-autoprefix" : "~1",
     "grunt-jquerymanifest": "~0.1",
     "grunt-karma": "~2.0",
     "grunt-zip": "^0.17",
